@@ -1,219 +1,14 @@
+// lib/main.dart
+
 import 'package:flutter/material.dart';
 // Impor screens
 import 'screens/placeholder_screen.dart';
 import 'screens/detail_screen.dart';
 import 'screens/news_screen.dart';
-// Impor global state (Wishlist)
+// Impor global state (Agar sinkron dengan Admin)
 import 'globals.dart';
 
-// --- DATA DUMMY (ALL KONSER, TAGS, COLORS) ---
-// CATATAN: Pastikan semua file di sini ada di folder proyek: assets/band_photos/
-
-final List<Map<String, String>> allKonserData = [
-  // ROCK
-  {
-    'artist': 'The S.I.G.I.T',
-    'date': '10 Des',
-    'price': 'Rp 350.000',
-    'genre': 'Rock',
-    'location': 'Jakarta',
-    'image': 'thesgigit.jpeg',
-  },
-  {
-    'artist': 'Dewa 19',
-    'date': '10 Des',
-    'price': 'Rp 350.000',
-    'genre': 'Rock',
-    'location': 'Jakarta',
-    'image': 'dewa.jpeg',
-  },
-  {
-    'artist': 'Slank',
-    'date': '10 Des',
-    'price': 'Rp 350.000',
-    'genre': 'Rock',
-    'location': 'Jakarta',
-    'image': 'slank.jpeg',
-  },
-
-  // POP & K-POP
-  {
-    'artist': 'Pop Sensation X',
-    'date': '25 Nov',
-    'price': 'Rp 500.000',
-    'genre': 'Pop',
-    'location': 'Surabaya',
-    'image': 'popsensationx.jpg',
-  },
-  {
-    'artist': 'K-Blast',
-    'date': '12 Des',
-    'price': 'Rp 800.000',
-    'genre': 'K-Pop',
-    'location': 'Jakarta',
-    'image': 'kblast.jpg',
-  },
-  {
-    'artist': 'Melody Queen',
-    'date': '18 Des',
-    'price': 'Rp 750.000',
-    'genre': 'Pop',
-    'location': 'Bandung',
-    'image': 'melodyqueen.jpg',
-  },
-  {
-    'artist': 'StarLight 5',
-    'date': '26 Des',
-    'price': 'Rp 900.000',
-    'genre': 'K-Pop',
-    'location': 'Jakarta',
-    'image': 'starlight5.jpg',
-  },
-  {
-    'artist': 'Vocal Harmony',
-    'date': '03 Jan',
-    'price': 'Rp 680.000',
-    'genre': 'Pop',
-    'location': 'Yogyakarta',
-    'image': 'vocalharmony.jpg',
-  },
-  {
-    'artist': 'Global Star',
-    'date': '26 Feb',
-    'price': 'Rp 980.000',
-    'genre': 'K-Pop',
-    'location': 'Jakarta',
-    'image': 'globalstar.jpg',
-  },
-
-  // R&B
-  {
-    'artist': 'Elephant Kind',
-    'date': '10 Des',
-    'price': 'Rp 350.000',
-    'genre': 'R&B',
-    'location': 'Jakarta',
-    'image': 'elephantkind.jpg',
-  },
-  {
-    'artist': 'Gamaliél Audrey Cantika',
-    'date': '10 Des',
-    'price': 'Rp 350.000',
-    'genre': 'R&B',
-    'location': 'Jakarta',
-    'image': 'audrey.jpg',
-  },
-  {
-    'artist': 'Sisitipsi',
-    'date': '10 Des',
-    'price': 'Rp 350.000',
-    'genre': 'R&B',
-    'location': 'Jakarta',
-    'image': 'sisitipsi.jpeg',
-  },
-  // INDIE
-  {
-    'artist': 'Efek Rumah Kaca',
-    'date': '10 Des',
-    'price': 'Rp 350.000',
-    'genre': 'Indie',
-    'location': 'Jakarta',
-    'image': 'efekrumahkaca.jpg',
-  },
-  {
-    'artist': 'Sunwich',
-    'date': '04 Des',
-    'price': 'Rp 380.000',
-    'genre': 'Indie',
-    'location': 'Jakarta',
-    'image': 'sunwich.jpg',
-  },
-  {
-    'artist': 'Reality Club',
-    'date': '19 Des',
-    'price': 'Rp 400.000',
-    'genre': 'Indie',
-    'location': 'Surabaya',
-    'image': 'realityclub.jpg',
-  },
-  // REGGAE
-  {
-    'artist': 'Dhyo Haw',
-    'date': '28 Jan',
-    'price': 'Rp 450.000',
-    'genre': 'Reggae',
-    'location': 'Bali',
-    'image': 'dhyohaw.jpg',
-  },
-  {
-    'artist': 'Momonon',
-    'date': '28 Jan',
-    'price': 'Rp 450.000',
-    'genre': 'Reggae',
-    'location': 'Bali',
-    'image': 'momonon.jpg',
-  },
-  {
-    'artist': 'Shaggy Dog',
-    'date': '28 Jan',
-    'price': 'Rp 450.000',
-    'genre': 'Reggae',
-    'location': 'Bali',
-    'image': 'shaggydog.jpg',
-  },
-  // PUNK
-  {
-    'artist': 'Rocket Rockers',
-    'date': '28 Jan',
-    'price': 'Rp 450.000',
-    'genre': 'Punk',
-    'location': 'Bali',
-    'image': 'rocketrockers.jpg',
-  },
-  {
-    'artist': 'Rebellion Rose',
-    'date': '28 Jan',
-    'price': 'Rp 450.000',
-    'genre': 'Punk',
-    'location': 'Bali',
-    'image': 'rebellionrose.jpg',
-  },
-  {
-    'artist': 'Superiots',
-    'date': '28 Jan',
-    'price': 'Rp 450.000',
-    'genre': 'Punk',
-    'location': 'Bali',
-    'image': 'superiots.jpeg',
-  },
-
-  // METAL
-  {
-    'artist': 'DeadSquad',
-    'date': '17 Des',
-    'price': 'Rp 400.000',
-    'genre': 'Metal',
-    'location': 'Bandung',
-    'image': 'deadsquad.jpg',
-  },
-  {
-    'artist': 'Seringai',
-    'date': '17 Des',
-    'price': 'Rp 400.000',
-    'genre': 'Metal',
-    'location': 'Bandung',
-    'image': 'seringai.jpeg',
-  },
-  {
-    'artist': 'Burgerkill',
-    'date': '17 Des',
-    'price': 'Rp 400.000',
-    'genre': 'Metal',
-    'location': 'Bandung',
-    'image': 'burgerkill.jpeg',
-  },
-];
-
+// --- GENRE TAGS & COLORS (STYLE) ---
 const List<String> genreTags = [
   'Semua',
   'Metal',
@@ -238,7 +33,7 @@ const Map<String, Color> genreColors = {
   'Semua': Color(0xFFEEEEEE),
 };
 
-// --- APLIKASI UTAMA (MATERIALAPP) ---
+// --- APLIKASI UTAMA ---
 void main() {
   runApp(const GigFinderApp());
 }
@@ -299,8 +94,6 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _widgetOptions.elementAt(_selectedIndex),
-
-      // Bottom Navigation Bar
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
@@ -319,7 +112,6 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
           unselectedItemColor: Colors.grey.shade600,
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
-          // LIST ITEM INI HARUS DEKLARASI LANGSUNG, BUKAN MEMBANGUN DENGAN BUILDER
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
@@ -351,33 +143,58 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _selectedGenre = 'Semua';
 
-  void _navigateToDetail(Map<String, String> concertData) {
+  // HELPER: Cek Gambar (URL Internet atau Aset Lokal)
+  ImageProvider _getImageProvider(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return const AssetImage(
+        'assets/images/placeholder.jpg',
+      ); // Pastikan ada atau ganti path
+    }
+    if (imagePath.startsWith('http')) {
+      return NetworkImage(imagePath);
+    } else {
+      // Jika bukan link, anggap aset lokal di folder band_photos
+      return AssetImage('assets/band_photos/$imagePath');
+    }
+  }
+
+  // NAVIGASI: Konversi Data Global (Dynamic) ke Data Detail (String)
+  void _navigateToDetail(Map<String, dynamic> item) {
+    final Map<String, String> convertedData = {
+      'artist':
+          item['band']?.toString() ??
+          'Unknown', // Kunci 'band' di global jadi 'artist'
+      'date': item['date']?.toString() ?? '-',
+      'price': item['price']?.toString() ?? 'TBA',
+      'genre': item['genre']?.toString() ?? 'Music',
+      'location': item['location']?.toString() ?? 'TBA',
+      'image':
+          item['main_photo']?.toString() ??
+          '', // Kunci 'main_photo' jadi 'image'
+      'description': item['bio']?.toString() ?? 'Tidak ada deskripsi',
+    };
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailScreen(concertData: concertData),
+        builder: (context) => DetailScreen(concertData: convertedData),
       ),
-    );
+    ).then((_) {
+      // Refresh saat kembali (jika status wishlist berubah)
+      setState(() {});
+    });
   }
 
   void _onGenreSelected(String genre) {
     setState(() {
       _selectedGenre = genre;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Filter Genre: $genre diterapkan.'),
-        duration: const Duration(milliseconds: 700),
-        backgroundColor:
-            genreColors[genre] ?? Theme.of(context).colorScheme.secondary,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(top: 60),
+      padding: const EdgeInsets.only(top: 60, bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -403,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 16),
 
-          _buildConcertCarousel(),
+          _buildConcertCarousel(), // Carousel sekarang pakai data global
           const SizedBox(height: 30),
 
           const Padding(
@@ -419,13 +236,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 16),
 
-          _buildConcertList(context),
+          _buildConcertList(context), // List sekarang pakai data global
         ],
       ),
     );
   }
 
-  // --- Implementasi Widget 1: Search Bar ---
+  // Widget 1: Search Bar
   Widget _buildSearchBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -453,22 +270,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           suffixIcon: IconButton(
             icon: Icon(Icons.mic, color: Theme.of(context).colorScheme.primary),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fungsi Voice Search diaktifkan!'),
-                  duration: Duration(milliseconds: 500),
-                  backgroundColor: Colors.blueGrey,
-                ),
-              );
-            },
+            onPressed: () {},
           ),
         ),
       ),
     );
   }
 
-  // --- Implementasi Widget 2: Chip/Filter Tags ---
+  // Widget 2: Genre Tags
   Widget _buildGenreTags() {
     return SizedBox(
       height: 40,
@@ -507,19 +316,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // --- Implementasi Widget 3: Carousel Card (Filter dan Geser) ---
+  // Widget 3: Carousel (Menggunakan globalBandData)
   Widget _buildConcertCarousel() {
-    List<Map<String, String>> filteredCarouselList;
+    // 1. Ambil data dari globalBandData
+    List<Map<String, dynamic>> filteredCarouselList;
 
     if (_selectedGenre == 'Semua') {
-      filteredCarouselList = allKonserData
-          .where((k) => k.containsKey('image') && k['image']!.isNotEmpty)
-          .take(4)
-          .toList();
+      filteredCarouselList = globalBandData.take(5).toList(); // Ambil 5 teratas
     } else {
-      filteredCarouselList = allKonserData
+      filteredCarouselList = globalBandData
           .where((k) => k['genre'] == _selectedGenre)
-          .take(4)
+          .take(5)
           .toList();
     }
 
@@ -528,14 +335,13 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Text(
-            'Tidak ada Konser Unggulan untuk genre "$_selectedGenre" saat ini.',
+            'Tidak ada Konser untuk genre "$_selectedGenre".',
             style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
           ),
         ),
       );
     }
 
-    // TAMPILAN
     return SizedBox(
       height: 220,
       child: ListView.builder(
@@ -543,11 +349,15 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: filteredCarouselList.length,
         itemBuilder: (context, index) {
           final item = filteredCarouselList[index];
-          final genre = item['genre']!;
-          final genreColor = genreColors[genre] ?? Colors.white;
 
-          // Path gambar yang benar
-          final imagePath = 'assets/band_photos/${item['image']}';
+          // Mapping Key Global -> UI
+          final String bandName = item['band'] ?? 'Unknown';
+          final String genre = item['genre'] ?? 'Music';
+          final String date = item['date'] ?? '-';
+          final String location = item['location'] ?? 'TBA';
+          final String? imagePath = item['main_photo']; // Bisa URL atau Asset
+
+          final genreColor = genreColors[genre] ?? Colors.white;
 
           return Container(
             width: MediaQuery.of(context).size.width * 0.88,
@@ -555,16 +365,6 @@ class _HomeScreenState extends State<HomeScreen> {
               left: index == 0 ? 16 : 8,
               right: 8,
               bottom: 8,
-            ),
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: genreColor.withOpacity(0.3),
-                  blurRadius: 10,
-                  spreadRadius: 0.5,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
             child: InkWell(
               onTap: () => _navigateToDetail(item),
@@ -578,51 +378,51 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.asset(
-                      imagePath, // Menggunakan path yang sudah disederhanakan
+                    // GAMBAR LATAR (Menggunakan Helper)
+                    Image(
+                      image: _getImageProvider(imagePath),
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
+                      errorBuilder: (ctx, err, stack) => Container(
                         color: Colors.grey.shade900,
                         alignment: Alignment.center,
-                        child: Text(
-                          item['artist']!,
-                          style: TextStyle(
-                            color: genreColor,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 50,
+                          color: Colors.grey.shade700,
                         ),
                       ),
                     ),
+                    // Gradient Gelap
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.8),
+                            Colors.black.withOpacity(0.9),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          stops: const [0.6, 1.0],
+                          stops: const [0.5, 1.0],
                         ),
                       ),
                     ),
+                    // Teks Info
                     Positioned(
-                      bottom: 10,
+                      bottom: 15,
                       left: 15,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item['artist']!,
+                            bandName,
                             style: const TextStyle(
-                              fontSize: 30,
+                              fontSize: 28,
                               fontWeight: FontWeight.w900,
                               color: Colors.white,
                             ),
                           ),
                           Text(
-                            '${item['date']} | ${item['location']} | ${item['genre']}',
+                            '$date | $location | $genre',
                             style: TextStyle(
                               fontSize: 14,
                               color: genreColor,
@@ -632,11 +432,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
+                    // Badge Genre Pojok Kanan
                     Positioned(
                       top: 10,
                       right: 10,
                       child: Container(
-                        padding: const EdgeInsets.all(6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: genreColor,
                           borderRadius: BorderRadius.circular(8),
@@ -646,6 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -660,12 +465,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // --- Implementasi Widget 4: List View with Separator (Filter dan Bintang Wishlist) ---
+  // Widget 4: List View (Menggunakan globalBandData)
   Widget _buildConcertList(BuildContext context) {
-    // Filter data berdasarkan genre yang dipilih
+    // 1. Ambil data dari globalBandData
     final filteredList = _selectedGenre == 'Semua'
-        ? allKonserData
-        : allKonserData.where((k) => k['genre'] == _selectedGenre).toList();
+        ? globalBandData
+        : globalBandData.where((k) => k['genre'] == _selectedGenre).toList();
 
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
@@ -677,12 +482,18 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       itemBuilder: (context, index) {
         final item = filteredList[index];
-        final genre = item['genre']!;
+
+        // Mapping Key Global -> UI
+        final String bandName = item['band'] ?? 'Unknown';
+        final String genre = item['genre'] ?? 'Music';
+        final String date = item['date'] ?? '-';
+        final String price = item['price'] ?? 'TBA';
+        final String location = item['location'] ?? 'TBA';
+
         final genreColor = genreColors[genre] ?? Colors.white;
 
-        // Kunci unik untuk Wishlist
-        final wishlistKey =
-            '${item['artist']} - ${item['genre']} ${item['location']}';
+        // Kunci unik untuk Wishlist (Gunakan nama band + lokasi agar unik)
+        final wishlistKey = '$bandName - $genre $location';
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -694,17 +505,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 border: Border.all(color: genreColor, width: 2),
                 borderRadius: BorderRadius.circular(10),
                 color: Theme.of(context).colorScheme.surface,
-                boxShadow: [
-                  BoxShadow(
-                    color: genreColor.withOpacity(0.4),
-                    blurRadius: 4,
-                    spreadRadius: 0.1,
-                  ),
-                ],
               ),
               alignment: Alignment.center,
               child: Text(
-                item['genre']![0],
+                genre.isNotEmpty ? genre[0] : '?',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 24,
@@ -713,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             title: Text(
-              item['artist']!,
+              bandName,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -721,15 +525,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             subtitle: Text(
-              '${item['date']} | ${item['price']}',
+              '$date | $price',
               style: TextStyle(color: Colors.grey.shade400),
             ),
-
-            // TRAILING BARU: Menggabungkan Bintang dan Tombol Detail
             trailing: Row(
-              mainAxisSize: MainAxisSize.min, // Agar tidak memakan ruang lebar
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // ⭐️ TOMBOL WISHLIST (BINTANG)
+                // ⭐️ TOMBOL WISHLIST
                 IconButton(
                   icon: Icon(
                     globalWishlistItems.contains(wishlistKey)
@@ -740,66 +542,40 @@ class _HomeScreenState extends State<HomeScreen> {
                         : Colors.grey,
                   ),
                   onPressed: () {
-                    // Gunakan setState untuk update tampilan bintang
                     setState(() {
                       if (globalWishlistItems.contains(wishlistKey)) {
                         removeFromWishlist(wishlistKey);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              '${item['artist']} dihapus dari Wishlist.',
-                            ),
+                            content: Text('$bandName dihapus dari Wishlist.'),
                           ),
                         );
                       } else {
                         addToWishlist(wishlistKey);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              '${item['artist']} ditambahkan ke Wishlist!',
-                            ),
-                            backgroundColor: Colors.yellow.shade700,
+                            content: Text('$bandName ditambahkan ke Wishlist!'),
+                            backgroundColor: Colors.yellow.shade800,
                           ),
                         );
                       }
                     });
                   },
                 ),
-
-                const SizedBox(width: 8),
-
-                // Tombol Detail
-                SizedBox(
-                  height: 35,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Anda menekan tombol Detail untuk ${item['artist']}!',
-                          ),
-                          duration: const Duration(milliseconds: 700),
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.secondary,
-                        ),
-                      );
-                      _navigateToDetail(item);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                // TOMBOL DETAIL
+                ElevatedButton(
+                  onPressed: () => _navigateToDetail(item),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      'Detail',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    minimumSize: const Size(60, 30),
+                  ),
+                  child: const Text(
+                    'Detail',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
               ],
