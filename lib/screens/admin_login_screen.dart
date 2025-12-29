@@ -20,14 +20,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       _errorMessage = '';
     });
 
-    // Cek kredensial (admin / 123)
+    // Cek kredensial (admin / 123) dari globals.dart
     if (_usernameController.text == adminUsername &&
         _passwordController.text == adminPassword) {
       // Login Sukses
       setState(() {
         isAdmin = true; // Set status global
       });
-      // Kembali ke layar sebelumnya dengan hasil true
+      // Kembali ke layar sebelumnya
       Navigator.pop(context, true);
     } else {
       // Login Gagal
@@ -43,7 +43,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Login'),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -55,7 +55,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               child: Icon(
                 Icons.admin_panel_settings,
                 size: 80,
-                color: Color(0xFFFF5252),
+                color: Color(0xFFF72585),
               ),
             ),
             const SizedBox(height: 30),
@@ -66,7 +66,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(),
               ),
-              style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 15),
             TextField(
@@ -77,14 +76,13 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 prefixIcon: Icon(Icons.lock),
                 border: OutlineInputBorder(),
               ),
-              style: const TextStyle(color: Colors.white),
             ),
             if (_errorMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: Text(
                   _errorMessage,
-                  style: const TextStyle(color: Colors.redAccent, fontSize: 14),
+                  style: const TextStyle(color: Colors.redAccent),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -93,18 +91,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               onPressed: _doLogin,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 15),
-                backgroundColor: const Color(0xFFFF5252),
+                backgroundColor: const Color(0xFFF72585),
               ),
-              child: const Text(
-                'LOGIN',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Akses ini hanya untuk Admin. Pengunjung/User biasa hanya bisa melihat konten.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+              child: const Text('LOGIN', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

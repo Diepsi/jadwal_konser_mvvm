@@ -1,95 +1,69 @@
-// lib/screens/news_screen.dart
-
 import 'package:flutter/material.dart';
-import 'band_detail_screen.dart'; // Import detail
-import '../globals.dart'; // Import globalBandData
+import 'package:provider/provider.dart';
+import '../ui/viewmodels/main_viewmodel.dart';
+import '../main.dart'; // Untuk mengambil genreColors
 
-class NewsScreen extends StatefulWidget {
+class NewsScreen extends StatelessWidget {
   const NewsScreen({super.key});
 
   @override
-  State<NewsScreen> createState() => _NewsScreenState();
-}
-
-class _NewsScreenState extends State<NewsScreen> {
-  Color _getGenreColor(String genre) {
-    switch (genre) {
-      case 'Metal':
-        return const Color(0xFF9E9E9E);
-      case 'Rock':
-        return const Color(0xFFFF5252);
-      case 'Pop':
-      case 'K-Pop':
-        return const Color(0xFF40C4FF);
-      case 'Indie':
-        return const Color(0xFF7C4DFF);
-      case 'Reggae':
-        return const Color(0xFFFFC107);
-      case 'Punk':
-        return const Color(0xFFE91E63);
-      default:
-        return Colors.white;
-    }
-  }
-
-  void _navigateToBandDetail(
-    BuildContext context,
-    Map<String, dynamic> bandData,
-  ) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BandDetailScreen(bandData: bandData),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // Menggunakan data dari global (termasuk yang baru ditambah Admin)
-    final newsList = globalBandData;
+    // Mengambil data dari MainViewModel
+    final viewModel = Provider.of<MainViewModel>(context);
+    final newsList = viewModel.allBands;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Berita Band & Gig'),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: const Text(
+          'Berita Band & Gig',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFF0A0A1F),
         elevation: 0,
       ),
-      body: ListView.separated(
-        itemCount: newsList.length,
-        padding: const EdgeInsets.all(16),
-        separatorBuilder: (context, index) =>
-            const Divider(color: Color(0xFF333355), height: 20),
-        itemBuilder: (context, index) {
-          final news = newsList[index];
-          final bandColor = _getGenreColor(news['genre']!);
+      body: newsList.isEmpty
+          ? const Center(child: Text('Tidak ada berita tersedia'))
+          : ListView.separated(
+              itemCount: newsList.length,
+              padding: const EdgeInsets.all(16),
+              separatorBuilder: (context, index) =>
+                  const Divider(color: Color(0xFF333355), height: 20),
+              itemBuilder: (context, index) {
+                final news = newsList[index];
+                // Mengambil warna berdasarkan genre dari main.dart
+                final bandColor = genreColors[news.genre] ?? Colors.white;
 
-          return ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: bandColor.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: bandColor, width: 1.5),
-              ),
-              alignment: Alignment.center,
-              child: Icon(Icons.article, color: bandColor),
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: bandColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: bandColor, width: 1.5),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(Icons.article, color: bandColor),
+                  ),
+                  title: Text(
+                    news.title.isNotEmpty ? news.title : "Informasi Band",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${news.band} - ${news.date}',
+                    style: TextStyle(color: Colors.grey.shade400),
+                  ),
+                  trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                  onTap: () {
+                    // Logika navigasi detail bisa ditambahkan di sini
+                  },
+                );
+              },
             ),
-            title: Text(
-              news['title']!,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            subtitle: Text(
-              '${news['band']} - ${news['date']}',
-              style: TextStyle(color: Colors.grey.shade400),
-            ),
-            trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-            onTap: () => _navigateToBandDetail(context, news),
-          );
-        },
-      ),
     );
   }
 }

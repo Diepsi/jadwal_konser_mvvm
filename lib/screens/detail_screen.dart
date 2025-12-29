@@ -1,5 +1,7 @@
+// lib/screens/detail_screen.dart
+
 import 'package:flutter/material.dart';
-import '../globals.dart'; // Impor data global
+import '../globals.dart';
 
 class DetailScreen extends StatefulWidget {
   final Map<String, String> concertData;
@@ -11,279 +13,216 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  late bool isWishlisted;
-
-  @override
-  void initState() {
-    super.initState();
-    // Item yang dicari: 'Artis - Genre Lokasi'
-    String itemKey =
-        '${widget.concertData['artist']} - ${widget.concertData['genre']} ${widget.concertData['location']}';
-    isWishlisted = globalWishlistItems.contains(itemKey);
-  }
-
-  // Fungsi untuk mendapatkan warna aksen berdasarkan genre
-  Color _getGenreColor(String genre) {
-    switch (genre) {
-      case 'EDM':
-      case 'Electronic':
-        return const Color(0xFF64FFDA);
-      case 'Rock':
-        return const Color(0xFFFF5252);
-      case 'Pop':
-      case 'K-Pop':
-        return const Color(0xFF40C4FF);
-      case 'Jazz':
-        return const Color(0xFFFFD740);
-      case 'Indie':
-        return const Color(0xFF7C4DFF);
-      case 'Metal':
-        return const Color(0xFF9E9E9E);
-      case 'Folk':
-        return const Color(0xFF8BC34A);
-      case 'Hip-Hop':
-        return const Color(0xFF9C27B0);
-      case 'Classic':
-      case 'Orchestra':
-        return const Color(0xFF00B0FF);
-      case 'Latin':
-        return const Color(0xFFFF9800);
-      case 'Punk':
-        return const Color(0xFFE91E63);
-      case 'R&B':
-        return const Color(0xFF4CAF50);
-      case 'Reggae':
-        return const Color(0xFFFFC107);
-      default:
-        return Colors.white;
+  // Helper untuk gambar (sama dengan di main.dart)
+  ImageProvider _getImageProvider(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return const AssetImage('assets/images/placeholder.jpg'); //
+    }
+    if (imagePath.startsWith('http')) {
+      return NetworkImage(imagePath); //
+    } else {
+      // Jika bukan link, anggap aset lokal di folder band_photos
+      return AssetImage('assets/band_photos/$imagePath'); //
     }
   }
 
-  void _toggleWishlist() {
-    setState(() {
-      String itemKey =
-          '${widget.concertData['artist']} - ${widget.concertData['genre']} ${widget.concertData['location']}';
-      if (isWishlisted) {
-        removeFromWishlist(itemKey);
-      } else {
-        addToWishlist(itemKey);
-      }
-      isWishlisted = !isWishlisted;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isWishlisted
-                ? '${widget.concertData['artist']} ditambahkan ke Wishlist!'
-                : '${widget.concertData['artist']} dihapus dari Wishlist.',
-          ),
-          duration: const Duration(milliseconds: 1000),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-        ),
-      );
-    });
+  // Fungsi refresh lokal untuk detail
+  void _handleRefresh() {
+    setState(() {}); // Memicu pembangunan ulang widget untuk memperbarui data
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Detail Diperbarui'),
+        duration: Duration(seconds: 1),
+        backgroundColor: Color(0xFF4895EF),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final genre = widget.concertData['genre']!;
-    final color = _getGenreColor(genre);
-    final artist = widget.concertData['artist']!;
-    final location = widget.concertData['location']!;
+    // Mencari data tambahan (seperti album) dari globals berdasarkan nama band
+    final fullData = globalBandData.firstWhere(
+      (element) => element['band'] == widget.concertData['artist'],
+      orElse: () => {},
+    );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(artist),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isWishlisted ? Icons.favorite : Icons.favorite_border,
-              color: isWishlisted ? Colors.red : Colors.grey.shade400,
+      backgroundColor: const Color(0xFF0A0A1F), //
+      body: CustomScrollView(
+        slivers: [
+          // Header dengan Foto yang bisa mengecil (Parallax)
+          SliverAppBar(
+            expandedHeight: 350,
+            pinned: true,
+            // --- TOMBOL BACK ---
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                backgroundColor: Colors.black.withOpacity(0.5),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context), // Kembali ke halaman sebelumnya
+                ),
+              ),
             ),
-            onPressed: _toggleWishlist,
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header Image
-            Container(
-              height: 250,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                    'assets/band_photos/${widget.concertData['image']}',
-                  ),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.5),
-                    BlendMode.darken,
+            // --- TOMBOL REFRESH ---
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.black.withOpacity(0.5),
+                  child: IconButton(
+                    icon: const Icon(Icons.refresh, color: Colors.white),
+                    onPressed: _handleRefresh, // Memanggil fungsi refresh
                   ),
                 ),
               ),
-              alignment: Alignment.bottomLeft,
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                widget.concertData['artist'] ?? '', //
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [Shadow(blurRadius: 10, color: Colors.black)],
+                ),
+              ),
+              background: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Text(
-                    artist,
-                    style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  Image(
+                    image: _getImageProvider(widget.concertData['image']), //
+                    fit: BoxFit.cover,
                   ),
-                  const SizedBox(height: 5),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
+                  const DecoratedBox(
                     decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(
-                      genre,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Color(0xFF0A0A1F)], //
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Detail Content
-            Padding(
+          ),
+          
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDetailRow(
-                    Icons.calendar_today,
-                    'Tanggal',
-                    widget.concertData['date']!,
+                  // Row Info Utama (Harga, Lokasi, Tanggal)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildInfoTile(Icons.confirmation_number_outlined, "Harga", widget.concertData['price'] ?? 'TBA'),
+                      _buildInfoTile(Icons.location_on_outlined, "Lokasi", widget.concertData['location'] ?? 'TBA'),
+                      _buildInfoTile(Icons.calendar_month_outlined, "Tanggal", widget.concertData['date'] ?? '-'),
+                    ],
                   ),
-                  _buildDetailRow(
-                    Icons.location_on,
-                    'Lokasi',
-                    location,
-                    color: Colors.blueAccent,
-                  ),
-                  _buildDetailRow(
-                    Icons.money,
-                    'Harga Tiket',
-                    widget.concertData['price']!,
-                    color: Colors.greenAccent,
-                  ),
+                  const SizedBox(height: 30),
 
-                  const SizedBox(height: 20),
-
-                  // Deskripsi
-                  Text(
-                    'Tentang Konser',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  // Tentang Band
+                  const Text(
+                    "Tentang Band",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Konser tunggal dari $artist di $location. Saksikan penampilan mereka membawakan lagu-lagu hits dan album terbaru. Ini adalah event wajib bagi penggemar $genre!',
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade400),
-                    textAlign: TextAlign.justify,
+                    widget.concertData['description'] ?? 'Tidak ada deskripsi.', //
+                    style: TextStyle(color: Colors.grey.shade400, height: 1.5, fontSize: 15),
                   ),
+                  const SizedBox(height: 30),
+
+                  // Section Album (Jika ada di globalBandData)
+                  if (fullData['albums'] != null && (fullData['albums'] as List).isNotEmpty) ...[
+                    const Text(
+                      "Album Populer",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    const SizedBox(height: 15),
+                    SizedBox(
+                      height: 120,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: (fullData['albums'] as List).length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            width: 110,
+                            margin: const EdgeInsets.only(right: 15),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1B1B3A), //
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white10),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.album, color: Color(0xFFF72585), size: 40), //
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: Text(
+                                    fullData['albums'][index], //
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(fontSize: 11, color: Colors.white),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 120), // Memberi ruang agar tidak tertutup button bottomSheet
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          border: Border(
-            top: BorderSide(color: Colors.grey.shade800, width: 0.5),
           ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Anda menekan tombol Beli Tiket!'),
-                      duration: const Duration(milliseconds: 700),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  'Beli Tiket Sekarang',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
+        ],
+      ),
+      // Tombol Beli Tiket
+      bottomSheet: Container(
+        color: const Color(0xFF0A0A1F), //
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        child: ElevatedButton(
+          onPressed: () {
+            // Logika pembelian tiket bisa ditambahkan di sini
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFF72585), //
+            foregroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 55),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            elevation: 8,
+          ),
+          child: const Text(
+            "BELI TIKET SEKARANG",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(
-    IconData icon,
-    String label,
-    String value, {
-    Color? color,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: color ?? Colors.grey.shade400, size: 24),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-                ),
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: color ?? Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+  Widget _buildInfoTile(IconData icon, String label, String value) {
+    return Column(
+      children: [
+        Icon(icon, color: const Color(0xFF4895EF), size: 28), //
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(
+          value, 
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)
+        ),
+      ],
     );
   }
 }

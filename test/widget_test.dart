@@ -1,30 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
+// Import file utama dan VM Anda
 import 'package:mopro_tugas/main.dart';
+import 'package:mopro_tugas/ui/viewmodels/main_viewmodel.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('GigFinder App smoke test', (WidgetTester tester) async {
+    // Bangun aplikasi di dalam lingkungan test
+    // Karena aplikasi menggunakan Provider, kita harus membungkusnya agar tidak error
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [ChangeNotifierProvider(create: (_) => MainViewModel())],
+        child: const GigFinderApp(),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // 1. Verifikasi bahwa judul aplikasi atau teks utama muncul
+    // Kita mencari teks 'Konser Unggulan' yang ada di HomeScreen
+    expect(find.text('Konser Unggulan 🔥'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // 2. Verifikasi keberadaan Bottom Navigation Bar
+    expect(find.byType(BottomNavigationBar), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // 3. Verifikasi keberadaan ikon navigasi
+    expect(find.byIcon(Icons.home), findsOneWidget);
+    expect(find.byIcon(Icons.article), findsOneWidget); // Menu News
+
+    // 4. Simulasi interaksi: Tap pada menu News
+    await tester.tap(find.byIcon(Icons.article));
+    await tester.pumpAndSettle(); // Tunggu animasi transisi selesai
+
+    // Verifikasi apakah AppBar di NewsScreen muncul
+    expect(find.text('Berita Band & Gig'), findsOneWidget);
   });
 }
