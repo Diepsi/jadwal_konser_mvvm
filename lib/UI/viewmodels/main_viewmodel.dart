@@ -12,8 +12,6 @@ class MainViewModel extends ChangeNotifier {
   String _selectedGenre = 'Semua';
   bool _isLoading = false;
 
-  // --- STATE AUTENTIKASI ---
-  // Pastikan variabel ini ada untuk mengatasi error 'undefined_getter'
   bool _isLoggedIn = false;
   bool _isAdminMode = false;
 
@@ -25,8 +23,6 @@ class MainViewModel extends ChangeNotifier {
   List<BandModel> get allBands => _allBands;
   String get selectedGenre => _selectedGenre;
   bool get isLoading => _isLoading;
-  
-  // Getter yang dicari oleh main.dart
   bool get isLoggedIn => _isLoggedIn; 
   bool get isAdminMode => _isAdminMode;
 
@@ -39,24 +35,27 @@ class MainViewModel extends ChangeNotifier {
 
   // --- LOGIKA AUTENTIKASI ---
 
-  void loginAsUser() {
+  // Kita tambahkan loginAsGuest sebagai alias agar sinkron dengan UI
+  void loginAsGuest() {
     _isLoggedIn = true;
     _isAdminMode = false;
+    isAdmin = false; // Sinkron ke globals.dart
     notifyListeners();
   }
+
+  void loginAsUser() => loginAsGuest(); // Alias jika diperlukan
 
   void loginAsAdmin() {
     _isLoggedIn = true;
     _isAdminMode = true;
-    isAdmin = true; // Sinkronisasi ke variabel global lama jika diperlukan
+    isAdmin = true; // Sinkron ke globals.dart
     notifyListeners();
   }
 
-  // Method logout yang dicari oleh ProfileWrapper di main.dart
   void logout() {
     _isLoggedIn = false;
     _isAdminMode = false;
-    isAdmin = false;
+    isAdmin = false; // Reset global
     notifyListeners();
   }
 
@@ -67,7 +66,6 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Pastikan fungsi ini tersedia di globals.dart
       await loadBandDataFromStorage();
       await loadWishlist();
       _allBands = _repository.getAllBands();

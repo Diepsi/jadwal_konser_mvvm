@@ -3,21 +3,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// --- PENTING: Gunakan path yang konsisten (UI huruf besar sesuai struktur folder Anda) ---
+// --- IMPORT VIEWMODELS ---
+// Pastikan path case-sensitive sesuai folder Anda (UI atau ui)
 import 'UI/viewmodels/main_viewmodel.dart';
 import 'UI/views/home_screen.dart';
 
-// Import Screens
-import 'screens/placeholder_screen.dart';
+// --- IMPORT SCREENS ---
+import 'screens/splash_screen.dart';
+import 'screens/initial_auth_screen.dart';
 import 'screens/news_screen.dart';
 import 'screens/wishlist_screen.dart';
-import 'screens/admin_panel_screen.dart'; 
-import 'screens/initial_auth_screen.dart'; 
+import 'screens/placeholder_screen.dart';
+import 'screens/admin_panel_screen.dart';
 
-// Import Global
+// --- IMPORT GLOBALS ---
 import 'globals.dart';
 
 void main() async {
+  // Pastikan binding Flutter diinisialisasi untuk SharedPreferences
   WidgetsFlutterBinding.ensureInitialized();
   
   // Memuat data awal dari storage sebelum aplikasi berjalan
@@ -52,22 +55,18 @@ class GigFinderApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          centerTitle: true,
         ),
       ),
-      // GATEKEEPER: Consumer memantau isLoggedIn dari MainViewModel
-      // Jika false, tampilkan InitialAuthScreen (Halaman Login Utama)
-      home: Consumer<MainViewModel>(
-        builder: (context, viewModel, child) {
-          if (!viewModel.isLoggedIn) {
-            return const InitialAuthScreen();
-          }
-          return const MainScreenWrapper();
-        },
-      ),
+      // HALAMAN PERTAMA: Splash Screen
+      // Setelah Splash Screen selesai (3-4 detik), ia akan memanggil 
+      // Navigator yang mengarah ke InitialAuthScreen atau logic login lainnya.
+      home: const SplashScreen(),
     );
   }
 }
 
+// Wrapper Utama setelah Login
 class MainScreenWrapper extends StatefulWidget {
   const MainScreenWrapper({super.key});
 
@@ -78,96 +77,68 @@ class MainScreenWrapper extends StatefulWidget {
 class _MainScreenWrapperState extends State<MainScreenWrapper> {
   int _selectedIndex = 0;
 
-  String _getAppBarTitle() {
-    switch (_selectedIndex) {
-      case 0: return 'GigFinder';
-      case 1: return 'Wishlist';
-      case 2: return 'News';
-      case 3: return 'Tickets';
-      case 4: return 'Profile';
-      default: return 'GigFinder';
-    }
-  }
-
-  void _handleRefresh() async {
-    final viewModel = Provider.of<MainViewModel>(context, listen: false);
-    await viewModel.refreshData(); 
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Halaman Diperbarui'),
-          duration: Duration(seconds: 1),
-          backgroundColor: Color(0xFF4895EF),
-        ),
-      );
-    }
-  }
-
-  // Opsi widget untuk navigasi bawah
-  List<Widget> get _widgetOptions => <Widget>[
+  // Navigasi halaman
+  final List<Widget> _pages = [
     const HomeScreen(),
     const WishlistScreen(),
     const NewsScreen(),
     const PlaceholderScreen(title: 'Tickets'),
-    const ProfileWrapper(), 
+    const ProfileWrapper(),
   ];
+
+  String _getAppBarTitle() {
+    switch (_selectedIndex) {
+      case 0: return 'GigFinder';
+      case 1: return 'Wishlist';
+      case 2: return 'News Feed';
+      case 3: return 'Tickets';
+      case 4: return 'My Profile';
+      default: return 'GigFinder';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_getAppBarTitle(), style: const TextStyle(fontWeight: FontWeight.bold)),
-        leading: _selectedIndex != 0 
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => setState(() => _selectedIndex = 0),
-              )
-            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _handleRefresh,
+            onPressed: () => Provider.of<MainViewModel>(context, listen: false).refreshData(),
           ),
         ],
       ),
+      // Menggunakan IndexedStack agar posisi scroll tidak hilang saat pindah tab
       body: IndexedStack(
         index: _selectedIndex,
-        children: _widgetOptions,
+        children: _pages,
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ),
-          ],
+          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05), width: 1)),
         ),
         child: BottomNavigationBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          selectedItemColor: Theme.of(context).colorScheme.primary,
-          unselectedItemColor: Colors.grey.shade600,
+          backgroundColor: const Color(0xFF0A0A1F),
+          selectedItemColor: const Color(0xFFF72585),
+          unselectedItemColor: Colors.grey,
           currentIndex: _selectedIndex,
+          type: BottomNavigationBarType.fixed,
           onTap: (index) => setState(() => _selectedIndex = index),
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
             BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Wishlist'),
             BottomNavigationBarItem(icon: Icon(Icons.article), label: 'News'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt), label: 'Tickets'),
+            BottomNavigationBarItem(icon: Icon(Icons.confirmation_number), label: 'Tickets'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
-          type: BottomNavigationBarType.fixed,
         ),
       ),
     );
   }
 }
 
-// --- WIDGET PROFIL: Terkoneksi dengan ViewModel untuk mode Admin/Logout ---
+// Widget Halaman Profil
 class ProfileWrapper extends StatelessWidget {
   const ProfileWrapper({super.key});
 
@@ -179,41 +150,76 @@ class ProfileWrapper extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                child: Icon(
-                  Icons.person, 
-                  size: 60, 
-                  color: viewModel.isAdminMode ? Colors.amber : Colors.white
-                ),
+              // Avatar dengan indikator mode admin
+              Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: const Color(0xFF1B1B3A),
+                    child: Icon(Icons.person, size: 60, color: viewModel.isAdminMode ? const Color(0xFFF72585) : Colors.white),
+                  ),
+                  if (viewModel.isAdminMode)
+                    const CircleAvatar(
+                      radius: 15,
+                      backgroundColor: Colors.amber,
+                      child: Icon(Icons.verified_user, size: 15, color: Colors.black),
+                    ),
+                ],
               ),
               const SizedBox(height: 20),
               Text(
-                viewModel.isAdminMode ? "Halo, Administrator" : "Halo, Pengunjung",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                viewModel.isAdminMode ? "Administrator" : "Music Enthusiast",
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 8),
+              Text(
+                viewModel.isAdminMode ? "Admin Mode Active" : "Guest Account",
+                style: const TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 40),
               
+              // Panel khusus Admin
               if (viewModel.isAdminMode) ...[
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.admin_panel_settings),
-                  label: const Text("Buka Panel Admin"),
-                  onPressed: () {
-                    Navigator.push(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4895EF),
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.admin_panel_settings),
+                    label: const Text("Open Admin Panel"),
+                    onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const AdminPanelScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
               ],
               
-              TextButton.icon(
-                icon: const Icon(Icons.logout, color: Colors.redAccent),
-                label: const Text("Logout / Keluar", style: TextStyle(color: Colors.redAccent)),
-                onPressed: () => viewModel.logout(), 
+              // Tombol Logout
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    side: const BorderSide(color: Colors.redAccent),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.logout, color: Colors.redAccent),
+                  label: const Text("Logout", style: TextStyle(color: Colors.redAccent)),
+                  onPressed: () {
+                    viewModel.logout();
+                    // Setelah logout, kembalikan ke Auth Screen
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const InitialAuthScreen()),
+                      (route) => false,
+                    );
+                  },
+                ),
               ),
             ],
           ),
