@@ -1,8 +1,8 @@
 // lib/screens/wishlist_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Wajib ditambahkan
+import 'package:provider/provider.dart';
 import '../globals.dart';
-import '../ui/viewmodels/main_viewmodel.dart';
+import '../UI/viewmodels/main_viewmodel.dart'; // Pastikan path UI konsisten (huruf besar/kecil)
 import 'detail_screen.dart';
 
 class WishlistScreen extends StatelessWidget {
@@ -10,79 +10,71 @@ class WishlistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Menggunakan Consumer agar UI otomatis sinkron dengan state di MainViewModel
-    // Tanpa perlu refresh manual atau menggunakan StatefulWidget
     return Consumer<MainViewModel>(
       builder: (context, viewModel, child) {
         return Container(
           color: const Color(0xFF0A0A1F),
           child: globalWishlistItems.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.favorite_border, size: 80, color: Colors.grey.shade800),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Belum ada konser favorit.',
-                        style: TextStyle(color: Colors.grey.shade500, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                )
+              ? _buildEmptyState()
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   itemCount: globalWishlistItems.length,
                   itemBuilder: (context, index) {
                     final wishlistKey = globalWishlistItems[index];
                     
-                    // Mencari data band asli di globals berdasarkan key unik
-                    final bandData = globalBandData.firstWhere(
-                      (b) => '${b['band']} - ${b['genre']} ${b['location']}' == wishlistKey,
-                      orElse: () => {},
+                    // Mencari data band di ViewModel (bukan mentah dari globals) 
+                    // agar lebih aman dan sinkron dengan model data
+                    final band = viewModel.allBands.firstWhere(
+                      (b) => '${b.band} - ${b.genre} ${b.location}' == wishlistKey,
+                      orElse: () => viewModel.allBands.first, // Fallback aman
                     );
 
-                    if (bandData.isEmpty) return const SizedBox.shrink();
+                    // Jika tidak ditemukan di list band (mungkin sudah dihapus admin)
+                    if (!viewModel.allBands.any((b) => '${b.band} - ${b.genre} ${b.location}' == wishlistKey)) {
+                      return const SizedBox.shrink();
+                    }
 
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       color: const Color(0xFF1B1B3A),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        contentPadding: const EdgeInsets.all(12),
                         leading: Container(
-                          padding: const EdgeInsets.all(8),
+                          width: 50,
+                          height: 50,
                           decoration: BoxDecoration(
                             color: const Color(0xFF0A0A1F),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.music_note, color: Color(0xFFF72585)),
+                          child: const Icon(Icons.favorite, color: Color(0xFFF72585)),
                         ),
                         title: Text(
-                          bandData['band'],
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            '${bandData['date']} | ${bandData['location']}',
-                            style: TextStyle(color: Colors.grey.shade400),
+                          band.band,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            color: Colors.white,
+                            fontSize: 16,
                           ),
                         ),
+                        subtitle: Text(
+                          '${band.date} | ${band.location}',
+                          style: TextStyle(color: Colors.grey.shade400),
+                        ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                          icon: const Icon(Icons.delete_sweep_rounded, color: Colors.redAccent),
                           onPressed: () {
-                            // Menghapus dari storage melalui globals
-                            removeFromWishlist(wishlistKey);
-                            
-                            // Memberitahu ViewModel bahwa data berubah (memicu rebuild otomatis)
-                            viewModel.notifyListeners();
+                            // PERBAIKAN: Gunakan method yang ada di ViewModel
+                            // Jangan memanggil notifyListeners() secara manual dari UI
+                            viewModel.toggleWishlist(band);
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('${bandData['band']} dihapus'),
+                                content: Text('${band.band} dihapus dari favorit'),
                                 duration: const Duration(seconds: 1),
                                 backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
                               ),
                             );
                           },
@@ -92,19 +84,16 @@ class WishlistScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => DetailScreen(concertData: {
-                                'artist': bandData['band'].toString(),
-                                'date': bandData['date'].toString(),
-                                'price': bandData['price'].toString(),
-                                'genre': bandData['genre'].toString(),
-                                'location': bandData['location'].toString(),
-                                'image': bandData['main_photo'].toString(),
-                                'description': bandData['bio'].toString(),
+                                'artist': band.band,
+                                'date': band.date,
+                                'price': band.price,
+                                'genre': band.genre,
+                                'location': band.location,
+                                'image': band.mainPhoto,
+                                'description': band.bio,
                               }),
                             ),
-                          ).then((_) {
-                            // Sinkronisasi data kembali saat user kembali dari halaman Detail
-                            viewModel.notifyListeners();
-                          });
+                          );
                         },
                       ),
                     );
@@ -112,6 +101,33 @@ class WishlistScreen extends StatelessWidget {
                 ),
         );
       },
+    );
+  }
+
+  // Widget untuk tampilan saat wishlist kosong
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.favorite_border_rounded, size: 100, color: Colors.white.withValues(alpha: 0.1)),
+          const SizedBox(height: 20),
+          const Text(
+            'Belum ada konser favorit',
+            style: TextStyle(
+              color: Colors.white70, 
+              fontSize: 18, 
+              fontWeight: FontWeight.w600
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Ketuk ikon bintang pada beranda untuk\nmenambahkan ke sini.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+        ],
+      ),
     );
   }
 }

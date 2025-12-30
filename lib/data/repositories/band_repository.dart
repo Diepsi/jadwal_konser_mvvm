@@ -2,16 +2,15 @@
 
 import '../../globals.dart';
 import '../models/band_model.dart';
-import '../services/band_service.dart';
 
 class BandRepository {
-  final BandService _service = BandService();
+  // PERBAIKAN: Menghapus field _service karena tidak lagi digunakan (unused_field)
+  // Data sekarang diambil langsung dari globals.dart untuk reaktivitas admin.
 
   /// MENGAMBIL SEMUA DATA BAND
-  /// Perbaikan: Mengambil langsung dari globalBandData agar perubahan dari Admin 
+  /// Mengambil langsung dari globalBandData agar perubahan dari Admin 
   /// (Tambah/Hapus) langsung terdeteksi oleh ViewModel.
   List<BandModel> getAllBands() {
-    // Pastikan menggunakan globalBandData dari globals.dart
     return globalBandData.map((map) => BandModel.fromMap(map)).toList();
   }
 
@@ -21,13 +20,16 @@ class BandRepository {
     addBandData({
       'band': band.band,
       'genre': band.genre,
-      'title': band.title ?? '',
+      // PERBAIKAN: Menghapus ?? '' karena properti band.title didefinisikan 
+      // sebagai non-nullable di model (dead_null_aware_expression)
+      'title': band.title,
       'date': band.date,
       'price': band.price,
       'location': band.location,
       'main_photo': band.mainPhoto,
       'bio': band.bio,
-      'albums': band.albums ?? [],
+      // PERBAIKAN: Menghapus ?? [] karena band.albums sudah pasti List (bukan null)
+      'albums': band.albums,
     });
   }
 

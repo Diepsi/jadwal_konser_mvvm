@@ -4,12 +4,14 @@ import 'dart:convert'; // Wajib untuk jsonEncode & jsonDecode
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Global Var untuk Auth Admin
-bool isAdmin = false;
+// --- AUTHENTICATION STATE ---
+// Variabel global untuk status admin lama (agar kompatibel dengan kode lama)
+bool isAdmin = false; 
 const String adminUsername = 'admin';
 const String adminPassword = '123';
 
-// --- KONFIGURASI GENRE (Pindahkan ke sini agar tidak error di Home/News) ---
+// --- CONFIGURATION & STYLES ---
+// Dipindahkan ke sini agar bisa diakses oleh Home, News, dan ViewModel tanpa konflik import
 const List<String> genreTags = [
   'Semua', 'Metal', 'Rock', 'R&B', 'Pop', 'K-Pop', 'Indie', 'Reggae', 'Punk',
 ];
@@ -26,14 +28,16 @@ const Map<String, Color> genreColors = {
   'Semua': Color(0xFFEEEEEE),
 };
 
-// --- SISTEM WISHLIST DENGAN PERSISTENCE ---
+// --- WISHLIST SYSTEM WITH PERSISTENCE ---
 List<String> globalWishlistItems = [];
 
+/// Memuat data wishlist dari SharedPreferences
 Future<void> loadWishlist() async {
   final prefs = await SharedPreferences.getInstance();
   globalWishlistItems = prefs.getStringList('wishlist_key') ?? [];
 }
 
+/// Menyimpan data wishlist secara internal
 Future<void> _saveWishlistToPrefs() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList('wishlist_key', globalWishlistItems);
@@ -53,7 +57,7 @@ void removeFromWishlist(String item) {
   }
 }
 
-// --- DATA BAND GLOBAL DENGAN PERSISTENCE ---
+// --- BAND DATA WITH PERSISTENCE ---
 
 // Data awal sebagai cadangan jika storage kosong
 List<Map<String, dynamic>> defaultBandData = [
@@ -94,15 +98,16 @@ List<Map<String, dynamic>> defaultBandData = [
 
 List<Map<String, dynamic>> globalBandData = [];
 
-// --- FUNGSI PERSISTENCE DATA BAND (SOLUSI ERROR DI VIEWMODEL) ---
+// --- PERSISTENCE FUNCTIONS ---
 
+/// Menyimpan data band ke storage dalam format JSON String
 Future<void> saveBandDataToStorage() async {
   final prefs = await SharedPreferences.getInstance();
-  // Simpan list map menjadi string JSON
   String encodedData = jsonEncode(globalBandData);
   await prefs.setString('saved_band_data', encodedData);
 }
 
+/// Memuat data band dari storage. Digunakan oleh MainViewModel.refreshData()
 Future<void> loadBandDataFromStorage() async {
   final prefs = await SharedPreferences.getInstance();
   String? savedData = prefs.getString('saved_band_data');
@@ -111,20 +116,23 @@ Future<void> loadBandDataFromStorage() async {
     Iterable decoded = jsonDecode(savedData);
     globalBandData = decoded.map((item) => Map<String, dynamic>.from(item)).toList();
   } else {
-    // Jika masih baru/kosong, gunakan data default
+    // Jika storage kosong, gunakan data default
     globalBandData = List.from(defaultBandData);
   }
 }
 
-// FUNGSI ADMIN DENGAN AUTO-SAVE
+// --- ADMIN FUNCTIONS ---
+
+/// Menambah data band baru dan menyimpannya secara permanen
 void addBandData(Map<String, dynamic> newBand) {
   globalBandData.insert(0, newBand);
-  saveBandDataToStorage(); // Simpan permanen setiap ada perubahan
+  saveBandDataToStorage(); 
 }
 
+/// Menghapus data band berdasarkan index dan memperbarui storage
 void removeBandData(int index) {
   if (index >= 0 && index < globalBandData.length) {
     globalBandData.removeAt(index);
-    saveBandDataToStorage(); // Simpan permanen setiap ada perubahan
+    saveBandDataToStorage();
   }
 }

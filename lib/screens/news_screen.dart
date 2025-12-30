@@ -1,14 +1,20 @@
+// lib/screens/news_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../ui/viewmodels/main_viewmodel.dart';
-import '../main.dart'; // Untuk mengambil genreColors
+
+// Gunakan 'UI' huruf besar sesuai struktur folder proyek Anda
+import '../UI/viewmodels/main_viewmodel.dart'; 
+
+// PERBAIKAN: Import dari globals.dart untuk mengambil genreColors
+import '../globals.dart'; 
 
 class NewsScreen extends StatelessWidget {
   const NewsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Mengambil data dari MainViewModel
+    // Memastikan tipe data Provider spesifik sesuai ViewModel Anda
     final viewModel = Provider.of<MainViewModel>(context);
     final newsList = viewModel.allBands;
 
@@ -18,7 +24,7 @@ class NewsScreen extends StatelessWidget {
           'Berita Band & Gig',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF0A0A1F),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: newsList.isEmpty
@@ -30,8 +36,9 @@ class NewsScreen extends StatelessWidget {
                   const Divider(color: Color(0xFF333355), height: 20),
               itemBuilder: (context, index) {
                 final news = newsList[index];
-                // Mengambil warna berdasarkan genre dari main.dart
-                final bandColor = genreColors[news.genre] ?? Colors.white;
+                
+                // Sekarang genreColors diambil langsung dari globals.dart
+                final bandColor = genreColors[news.genre] ?? const Color(0xFFF72585);
 
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
@@ -39,27 +46,32 @@ class NewsScreen extends StatelessWidget {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
+                      // Menggunakan withValues sesuai standar Flutter terbaru
                       color: bandColor.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: bandColor, width: 1.5),
                     ),
                     alignment: Alignment.center,
-                    child: Icon(Icons.article, color: bandColor),
+                    child: Icon(Icons.article_outlined, color: bandColor),
                   ),
                   title: Text(
-                    news.title.isNotEmpty ? news.title : "Informasi Band",
+                    news.band,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      color: Colors.white,
                     ),
                   ),
-                  subtitle: Text(
-                    '${news.band} - ${news.date}',
-                    style: TextStyle(color: Colors.grey.shade400),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      'Genre: ${news.genre} • Lokasi: ${news.location}',
+                      style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                    ),
                   ),
                   trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
-                    // Logika navigasi detail bisa ditambahkan di sini
+                    // Logika navigasi detail bisa diletakkan di sini
                   },
                 );
               },
