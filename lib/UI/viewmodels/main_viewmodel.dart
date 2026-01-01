@@ -1,30 +1,48 @@
-// lib/ui/viewmodels/main_viewmodel.dart
-
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../data/models/band_model.dart';
 import '../../data/repositories/band_repository.dart';
-import '../../globals.dart'; 
+import '../../globals.dart';
 
 class MainViewModel extends ChangeNotifier {
   final BandRepository _repository = BandRepository();
 
+  // =======================
+  // DATA BAND & FILTER
+  // =======================
   List<BandModel> _allBands = [];
   String _selectedGenre = 'Semua';
   bool _isLoading = false;
 
+  // =======================
+  // AUTH STATE
+  // =======================
   bool _isLoggedIn = false;
   bool _isAdminMode = false;
+
+  // =======================
+  // USER PROFILE (BARU)
+  // =======================
+  String _userName = 'User';
+  String _favoriteGenre = 'Rock';
 
   MainViewModel() {
     refreshData();
   }
 
-  // --- GETTERS ---
+  // =======================
+  // GETTERS
+  // =======================
   List<BandModel> get allBands => _allBands;
   String get selectedGenre => _selectedGenre;
   bool get isLoading => _isLoading;
-  bool get isLoggedIn => _isLoggedIn; 
+
+  bool get isLoggedIn => _isLoggedIn;
   bool get isAdminMode => _isAdminMode;
+
+  String get userName => _userName;
+  String get favoriteGenre => _favoriteGenre;
 
   List<BandModel> get filteredBands {
     if (_selectedGenre == 'Semua') {
@@ -33,34 +51,37 @@ class MainViewModel extends ChangeNotifier {
     return _allBands.where((band) => band.genre == _selectedGenre).toList();
   }
 
-  // --- LOGIKA AUTENTIKASI ---
-
-  // Kita tambahkan loginAsGuest sebagai alias agar sinkron dengan UI
-  void loginAsGuest() {
+  // =======================
+  // AUTH LOGIC
+  // =======================
+  void loginAsGuest() async {
     _isLoggedIn = true;
     _isAdminMode = false;
-    isAdmin = false; // Sinkron ke globals.dart
+    isAdmin = false;
+    await loadUserProfile(); // load profil user
     notifyListeners();
   }
 
-  void loginAsUser() => loginAsGuest(); // Alias jika diperlukan
+  void loginAsUser() => loginAsGuest();
 
-  void loginAsAdmin() {
+  void loginAsAdmin() async {
     _isLoggedIn = true;
     _isAdminMode = true;
-    isAdmin = true; // Sinkron ke globals.dart
+    isAdmin = true;
+    await loadUserProfile();
     notifyListeners();
   }
 
   void logout() {
     _isLoggedIn = false;
     _isAdminMode = false;
-    isAdmin = false; // Reset global
+    isAdmin = false;
     notifyListeners();
   }
 
-  // --- LOGIKA BISNIS ---
-
+  // =======================
+  // DATA & BUSINESS LOGIC
+  // =======================
   Future<void> refreshData() async {
     _isLoading = true;
     notifyListeners();
@@ -82,8 +103,9 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- LOGIKA WISHLIST ---
-
+  // =======================
+  // WISHLIST LOGIC
+  // =======================
   bool isFavorite(BandModel band) {
     final wishlistKey = '${band.band} - ${band.genre} ${band.location}';
     return globalWishlistItems.contains(wishlistKey);
@@ -96,6 +118,31 @@ class MainViewModel extends ChangeNotifier {
     } else {
       addToWishlist(wishlistKey);
     }
+    notifyListeners();
+  }
+
+  int get wishlistCount => globalWishlistItems.length;
+
+  // =======================
+  // USER PROFILE LOGIC (BARU)
+  // =======================
+  Future<void> loadUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    _userName = prefs.getString('user_name') ?? 'User';
+    _favoriteGenre = prefs.getString('favorite_genre') ?? 'Rock';
+    notifyListeners();
+  }
+
+  Future<void> updateUserProfile({
+    required String name,
+    required String genre,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_name', name);
+    await prefs.setString('favorite_genre', genre);
+
+    _userName = name;
+    _favoriteGenre = genre;
     notifyListeners();
   }
 }

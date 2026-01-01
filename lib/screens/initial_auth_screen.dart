@@ -90,7 +90,7 @@ class _InitialAuthScreenState extends State<InitialAuthScreen> {
             const Icon(Icons.music_note_rounded, size: 80, color: Color(0xFFF72585)),
             const SizedBox(height: 20),
             const Text(
-              "GIGFINDER",
+              "ScientistFest",
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 5, color: Colors.white),
             ),
             const SizedBox(height: 10),

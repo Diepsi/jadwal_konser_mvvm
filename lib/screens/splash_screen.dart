@@ -69,7 +69,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               const SizedBox(height: 24),
               // Nama Aplikasi dengan Style Modern
               const Text(
-                "GigFinder",
+                "ScientistFest",
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w900,
