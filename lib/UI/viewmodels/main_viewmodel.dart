@@ -9,10 +9,11 @@ class MainViewModel extends ChangeNotifier {
   final BandRepository _repository = BandRepository();
 
   // =======================
-  // DATA BAND & FILTER
+  // DATA BAND, FILTER & SEARCH
   // =======================
   List<BandModel> _allBands = [];
   String _selectedGenre = 'Semua';
+  String _searchQuery = '';
   bool _isLoading = false;
 
   // =======================
@@ -22,7 +23,7 @@ class MainViewModel extends ChangeNotifier {
   bool _isAdminMode = false;
 
   // =======================
-  // USER PROFILE (BARU)
+  // USER PROFILE
   // =======================
   String _userName = 'User';
   String _favoriteGenre = 'Rock';
@@ -36,6 +37,7 @@ class MainViewModel extends ChangeNotifier {
   // =======================
   List<BandModel> get allBands => _allBands;
   String get selectedGenre => _selectedGenre;
+  String get searchQuery => _searchQuery;
   bool get isLoading => _isLoading;
 
   bool get isLoggedIn => _isLoggedIn;
@@ -44,27 +46,35 @@ class MainViewModel extends ChangeNotifier {
   String get userName => _userName;
   String get favoriteGenre => _favoriteGenre;
 
+  /// FILTER UTAMA (GENRE + SEARCH)
   List<BandModel> get filteredBands {
-    if (_selectedGenre == 'Semua') {
-      return _allBands;
-    }
-    return _allBands.where((band) => band.genre == _selectedGenre).toList();
+    return _allBands.where((band) {
+      final matchesGenre =
+          _selectedGenre == 'Semua' || band.genre == _selectedGenre;
+
+      final matchesSearch =
+          band.band.toLowerCase().contains(_searchQuery) ||
+          band.genre.toLowerCase().contains(_searchQuery) ||
+          band.location.toLowerCase().contains(_searchQuery);
+
+      return matchesGenre && matchesSearch;
+    }).toList();
   }
 
   // =======================
   // AUTH LOGIC
   // =======================
-  void loginAsGuest() async {
+  Future<void> loginAsGuest() async {
     _isLoggedIn = true;
     _isAdminMode = false;
     isAdmin = false;
-    await loadUserProfile(); // load profil user
+    await loadUserProfile();
     notifyListeners();
   }
 
   void loginAsUser() => loginAsGuest();
 
-  void loginAsAdmin() async {
+  Future<void> loginAsAdmin() async {
     _isLoggedIn = true;
     _isAdminMode = true;
     isAdmin = true;
@@ -103,6 +113,12 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 🔍 SET SEARCH QUERY (INI YANG MENGAKTIFKAN SEARCH)
+  void setSearchQuery(String query) {
+    _searchQuery = query.toLowerCase();
+    notifyListeners();
+  }
+
   // =======================
   // WISHLIST LOGIC
   // =======================
@@ -124,7 +140,7 @@ class MainViewModel extends ChangeNotifier {
   int get wishlistCount => globalWishlistItems.length;
 
   // =======================
-  // USER PROFILE LOGIC (BARU)
+  // USER PROFILE LOGIC
   // =======================
   Future<void> loadUserProfile() async {
     final prefs = await SharedPreferences.getInstance();

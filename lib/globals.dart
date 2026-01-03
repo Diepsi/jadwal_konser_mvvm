@@ -1,19 +1,29 @@
-// lib/globals.dart
-
-import 'dart:convert'; // Wajib untuk jsonEncode & jsonDecode
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// --- AUTHENTICATION STATE ---
-// Variabel global untuk status admin lama (agar kompatibel dengan kode lama)
-bool isAdmin = false; 
+// =======================
+// AUTHENTICATION STATE
+// =======================
+bool isAdmin = false;
 const String adminUsername = 'admin';
 const String adminPassword = '123';
 
-// --- CONFIGURATION & STYLES ---
-// Dipindahkan ke sini agar bisa diakses oleh Home, News, dan ViewModel tanpa konflik import
+// =======================
+// CONFIGURATION & STYLES
+// =======================
 const List<String> genreTags = [
-  'Semua', 'Metal', 'Rock', 'R&B', 'Pop', 'K-Pop', 'Indie', 'Reggae', 'Punk',
+  'Semua',
+  'Metal',
+  'Rock',
+  'R&B',
+  'Pop',
+  'K-Pop',
+  'Indie',
+  'Reggae',
+  'Punk',
+  'Electronic',
+  'Jazz',
 ];
 
 const Map<String, Color> genreColors = {
@@ -25,19 +35,21 @@ const Map<String, Color> genreColors = {
   'Indie': Color(0xFF7C4DFF),
   'Reggae': Color(0xFFFFC107),
   'Punk': Color(0xFFE91E63),
+  'Electronic': Color(0xFF00E5FF),
+  'Jazz': Color(0xFF8D6E63),
   'Semua': Color(0xFFEEEEEE),
 };
 
-// --- WISHLIST SYSTEM WITH PERSISTENCE ---
+// =======================
+// WISHLIST SYSTEM
+// =======================
 List<String> globalWishlistItems = [];
 
-/// Memuat data wishlist dari SharedPreferences
 Future<void> loadWishlist() async {
   final prefs = await SharedPreferences.getInstance();
   globalWishlistItems = prefs.getStringList('wishlist_key') ?? [];
 }
 
-/// Menyimpan data wishlist secara internal
 Future<void> _saveWishlistToPrefs() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList('wishlist_key', globalWishlistItems);
@@ -57,9 +69,9 @@ void removeFromWishlist(String item) {
   }
 }
 
-// --- BAND DATA WITH PERSISTENCE ---
-
-// Data awal sebagai cadangan jika storage kosong
+// =======================
+// BAND DATA (DEFAULT)
+// =======================
 List<Map<String, dynamic>> defaultBandData = [
   {
     'band': 'The S.I.G.I.T',
@@ -94,42 +106,112 @@ List<Map<String, dynamic>> defaultBandData = [
     'bio': 'NewJeans adalah girl grup Korea Selatan.',
     'albums': ['Get Up', 'OMG'],
   },
+
+  // =======================
+  // BAND TAMBAHAN (BARU)
+  // =======================
+  {
+    'band': 'Colorcode',
+    'genre': 'Electronic',
+    'date': '12 Jul',
+    'price': 'Rp 150.000',
+    'location': 'Jakarta',
+    'title': 'Colorcode Live Session',
+    'main_photo': 'colorcode.jpeg',
+    'bio': 'Colorcode adalah band electronic-pop Indonesia dengan nuansa futuristik.',
+    'albums': ['Future Echoes'],
+  },
+  {
+    'band': 'Eleventwelfth',
+    'genre': 'Indie',
+    'date': '18 Jul',
+    'price': 'Rp 120.000',
+    'location': 'Bandung',
+    'title': 'Eleventwelfth Indie Night',
+    'main_photo': 'eleventwelfth.jpeg',
+    'bio': 'Eleventwelfth dikenal dengan musik indie pop-rock yang catchy.',
+    'albums': ['Lucky Number', 'When We Were Young'],
+  },
+  {
+    'band': 'Stars and Rabbit',
+    'genre': 'Indie',
+    'date': '25 Jul',
+    'price': 'Rp 130.000',
+    'location': 'Yogyakarta',
+    'title': 'Stars and Rabbit Live',
+    'main_photo': 'starsandrabbit.jpeg',
+    'bio': 'Stars and Rabbit adalah duo indie folk dengan nuansa eksperimental.',
+    'albums': ['Elysian'],
+  },
+  {
+    'band': 'Vierra',
+    'genre': 'Pop',
+    'date': '02 Agu',
+    'price': 'Rp 200.000',
+    'location': 'Jakarta',
+    'title': 'Vierra Reunion Concert',
+    'main_photo': 'vierra.jpeg',
+    'bio': 'Vierra adalah band pop legendaris Indonesia dengan lagu-lagu romantis.',
+    'albums': ['My First Love'],
+  },
+  {
+    'band': 'Sore Ze Band',
+    'genre': 'Jazz',
+    'date': '10 Agu',
+    'price': 'Rp 180.000',
+    'location': 'Jakarta',
+    'title': 'Sore Live at Sunset',
+    'main_photo': 'sore.jpeg',
+    'bio': 'Sore dikenal dengan musik jazz-pop yang unik dan lirik puitis.',
+    'albums': ['Centralismo'],
+  },
+  {
+    'band': 'Kangen Band',
+    'genre': 'Pop',
+    'date': '15 Agu',
+    'price': 'Rp 100.000',
+    'location': 'Lampung',
+    'title': 'Kangen Band Nostalgia Night',
+    'main_photo': 'kangen_band.jpeg',
+    'bio': 'Kangen Band adalah ikon pop Melayu Indonesia.',
+    'albums': ['Tentang Aku, Kau dan Dia'],
+  },
 ];
 
+// =======================
+// GLOBAL BAND DATA
+// =======================
 List<Map<String, dynamic>> globalBandData = [];
 
-// --- PERSISTENCE FUNCTIONS ---
-
-/// Menyimpan data band ke storage dalam format JSON String
+// =======================
+// PERSISTENCE FUNCTIONS
+// =======================
 Future<void> saveBandDataToStorage() async {
   final prefs = await SharedPreferences.getInstance();
-  String encodedData = jsonEncode(globalBandData);
-  await prefs.setString('saved_band_data', encodedData);
+  await prefs.setString('saved_band_data', jsonEncode(globalBandData));
 }
 
-/// Memuat data band dari storage. Digunakan oleh MainViewModel.refreshData()
 Future<void> loadBandDataFromStorage() async {
   final prefs = await SharedPreferences.getInstance();
   String? savedData = prefs.getString('saved_band_data');
 
   if (savedData != null && savedData.isNotEmpty) {
     Iterable decoded = jsonDecode(savedData);
-    globalBandData = decoded.map((item) => Map<String, dynamic>.from(item)).toList();
+    globalBandData =
+        decoded.map((e) => Map<String, dynamic>.from(e)).toList();
   } else {
-    // Jika storage kosong, gunakan data default
     globalBandData = List.from(defaultBandData);
   }
 }
 
-// --- ADMIN FUNCTIONS ---
-
-/// Menambah data band baru dan menyimpannya secara permanen
+// =======================
+// ADMIN FUNCTIONS
+// =======================
 void addBandData(Map<String, dynamic> newBand) {
   globalBandData.insert(0, newBand);
-  saveBandDataToStorage(); 
+  saveBandDataToStorage();
 }
 
-/// Menghapus data band berdasarkan index dan memperbarui storage
 void removeBandData(int index) {
   if (index >= 0 && index < globalBandData.length) {
     globalBandData.removeAt(index);
